@@ -1,0 +1,74 @@
+{
+  "rules": {
+    "notificationTransactions": {
+      ".read": "auth != null",
+      "$recordId": {
+        // Only allow creation if the record DOES NOT already exist (prevent overwriting)
+        // AND user is authenticated
+        ".write": "auth != null && (!data.exists() || (data.child('deviceId').val() === auth.uid && data.child('verificationStatus').val() === 'unverified'))",
+
+        // Validate complete record structure
+        ".validate": "newData.hasChildren(['recordId', 'paymentMethod', 'transactionId', 'amountPoisha', 'currency', 'verificationStatus', 'deviceId'])",
+
+        "recordId": {
+          ".validate": "newData.isString() && newData.val() === $recordId && newData.val().matches(/^(bkash|nagad|rocket|upay)_[A-Z0-9]+$/)"
+        },
+        "paymentMethod": {
+          ".validate": "newData.isString() && (newData.val() === 'bkash' || newData.val() === 'nagad' || newData.val() === 'rocket' || newData.val() === 'upay')"
+        },
+        "transactionId": {
+          ".validate": "newData.isString() && newData.val().length >= 6 && newData.val().length <= 32"
+        },
+        "amountPoisha": {
+          // Must be positive integer poisha (1 BDT = 100 poisha)
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "currency": {
+          ".validate": "newData.isString() && newData.val() === 'BDT'"
+        },
+        "transactionType": {
+          ".validate": "newData.isString()"
+        },
+        "notificationTimestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "receivedAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "sourceType": {
+          ".validate": "newData.isString() && (newData.val() === 'sms_notification' || newData.val() === 'app_notification')"
+        },
+        "sourcePackage": {
+          ".validate": "newData.isString()"
+        },
+        "verificationStatus": {
+          // CRITICAL SECURITY RULE:
+          // The Android client app is STRICTLY FORBIDDEN from writing 'verified' or 'successful'.
+          // Any client write MUST set or maintain 'unverified'.
+          // Only server-side admin or trusted Cloud Functions can alter this status.
+          ".validate": "newData.isString() && newData.val() === 'unverified'"
+        },
+        "deviceId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "syncStatus": {
+          ".validate": "newData.isString()"
+        },
+        "serverReceivedAt": {
+          ".validate": "newData.isNumber() || newData.val() === null"
+        },
+        // Forbid storing raw SMS bodies to ensure privacy and data minimization
+        "$other": {
+          ".validate": "false"
+        }
+      }
+    },
+    // Authorized ingestion devices registry
+    "authorizedDevices": {
+      ".read": "auth != null",
+      "$deviceId": {
+        ".write": "auth != null && (!data.exists() || auth.uid === $deviceId)"
+      }
+    }
+  }
+}

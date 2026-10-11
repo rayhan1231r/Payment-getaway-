@@ -1,0 +1,6 @@
+{
+  "name": "PayNotify Receiver - Android & Firebase Engine",
+  "description": "Production Native Android notification receiver and parser for bKash, Nagad, Rocket, and Upay with Firebase Realtime Database sync and security rules.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

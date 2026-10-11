@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">PayNotify Receiver</string>
+    <string name="notification_service_label">PayNotify Transaction Listener</string>
+    <string name="notification_channel_name">PayNotify Sync Service</string>
+    <string name="notification_channel_desc">Monitors financial transaction notifications for real-time ingest</string>
+</resources>
